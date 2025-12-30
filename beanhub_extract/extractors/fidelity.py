@@ -6,8 +6,7 @@ import hashlib
 import re
 import typing
 
-from ..data_types import Fingerprint
-from ..data_types import Transaction
+from ..data_types import Fingerprint, Transaction
 from ..text import as_text
 from .base import ExtractorBase
 
@@ -16,11 +15,11 @@ DATE_FIELD = "Run Date"
 
 
 def beanify_account(name: str) -> str:
-    rst = re.sub(r"[^a-zA-Z0-9-_:]", "", name)
+    rst = re.sub(r"[^a-zA-Z0-9-_ ]", "", name)
     rst = re.sub(r"[ \t\n\r\v\f]", " ", rst)
     rst = re.sub(r"[ ]{2,}", " ", rst)
     rst = rst.replace(" ", "-")
-    return rst
+    return rst.title()
 
 
 def parse_date(date_str: str) -> datetime.date:
@@ -45,17 +44,33 @@ def skip_leading_empty_lines(input_file: typing.TextIO):
             continue
         # rewind to start of that line
         input_file.seek(input_file.tell() - len(line) - 1)
+
         break
 
 
 @contextlib.contextmanager
 def read_cvs(input_file: typing.TextIO | typing.BinaryIO):
-    with as_text(input_file, encoding=DEFAULT_ENCODING) as text_file:
-        skip_leading_empty_lines(text_file)
+    with as_text(
+        input_file, encoding=DEFAULT_ENCODING
+    ) as text_file:  # type: typing.TextIO
+        # Skip BOM and leading empty lines until we find the first 'R'
+        while True:
+            line = text_file.readline()
+            if not line:
+                break
+            stripped = line.lstrip("\ufeff").strip()  # Remove BOM character
+            if (
+                stripped and stripped[0] == "R"
+            ):  # "Run Date" maks beginning of valid header
+                # Found the header line starting with 'R', rewind
+                text_file.seek(text_file.tell() - len(line))
+                break
+
         reader = csv.DictReader(
             text_file,
             restkey=None,
             restval=None,
+            skipinitialspace=True,
             dialect="excel",
         )
         yield reader
@@ -108,6 +123,7 @@ class FidelityExtractor(ExtractorBase):
                 return reader.fieldnames == self.ALL_FIELDS
         except Exception:
             pass
+
         return False
 
     def fingerprint(self) -> Fingerprint | None:
@@ -136,11 +152,15 @@ class FidelityExtractor(ExtractorBase):
         if hasattr(self.input_file, "name"):
             filename = self.input_file.name
 
+        row_count = 0
+        self.input_file.seek(0)
         with read_cvs(self.input_file) as reader:
             it = filter(is_valid_row, reader)
-            row_count = 0
-            for _ in it:
-                row_count += 1
+            try:
+                for _ in it:
+                    row_count += 1
+            except Exception:
+                pass
 
         self.input_file.seek(0)
         with read_cvs(self.input_file) as reader:

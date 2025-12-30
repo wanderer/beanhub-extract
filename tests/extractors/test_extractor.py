@@ -1,7 +1,6 @@
 import pathlib
 
 import pytest
-
 from beanhub_extract.extractors import detect_extractor
 
 
@@ -12,8 +11,8 @@ from beanhub_extract.extractors import detect_extractor
         ("chase_credit_card.csv", "chase_credit_card"),
         ("csv.csv", "csv"),
         ("wealthsimple.csv", "wealthsimple"),
-        ("citi.csv", "citi_credit_card"),
         ("fidelity.csv", "fidelity"),
+        ("citi.csv", "citi_credit_card"),
         ("other.csv", None),
         (pytest.lazy_fixture("zip_file"), None),
     ],
