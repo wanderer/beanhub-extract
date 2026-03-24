@@ -9,6 +9,7 @@ from .csv import CSVExtractor
 from .fidelity import FidelityExtractor
 from .mercury import MercuryExtractor
 from .plaid import PlaidExtractor
+from .simplefin import SimpleFinExtractor
 from .wealthsimple import WealthsimpleExtractor
 
 ALL_EXTRACTORS: dict[str, typing.Type[ExtractorBase]] = {
@@ -19,6 +20,7 @@ ALL_EXTRACTORS: dict[str, typing.Type[ExtractorBase]] = {
     CSVExtractor.EXTRACTOR_NAME: CSVExtractor,
     FidelityExtractor.EXTRACTOR_NAME: FidelityExtractor,
     CitiCreditCardExtractor.EXTRACTOR_NAME: CitiCreditCardExtractor,
+    SimpleFinExtractor.EXTRACTOR_NAME: SimpleFinExtractor,
 }
 
 

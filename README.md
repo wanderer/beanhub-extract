@@ -114,3 +114,17 @@ Click on "Accounts" and select the specific account for which you want to export
 Scroll down to the "Transactions" section, then use the "Filter By" dropdown to select "All" transaction types and set a "Custom Date Range" for the period you want to export.
 Click the "Search" button to display the filtered transactions, then click on the download icon located in the top right corner of the transaction list.
 In the pop-up window, under "Text Formats," select "CSV" and click "Export" to download the file.
+
+### [SimpleFIN](https://www.simplefin.org) - `simplefin`
+
+[SimpleFIN](https://www.simplefin.org) is a protocol for sharing read-only financial data from banks and financial institutions.
+The CSV exports follow a standardized format with ISO 8601 datetime fields and include transaction data from various institutions. 
+
+CSV columns:
+- `id` - Unique transaction identifier (e.g., `TRN-<UUID>`)
+- `posted` - ISO 8601 datetime when transaction posted
+- `transacted_at` - ISO 8601 datetime when transaction occurred
+- `amount` - Transaction amount (negative for debits, positive for credits)
+- `description` - Transaction description
+- `pending` - Boolean indicating pending status
+- `currency` - ISO 4217 currency code
