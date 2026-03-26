@@ -103,8 +103,8 @@ class SchwabExtractor(ExtractorBase):
         """Extract transactions from Schwab CSV."""
         self.input_file.seek(0)
         filename = getattr(self.input_file, "name", None)
-        if filename:
-            filename = as_text(filename)
+        if filename and not isinstance(filename, str):
+            filename = str(filename)
 
         with as_text(self.input_file, encoding=self.DEFAULT_ENCODING) as text_file:
             reader = csv.DictReader(text_file)
