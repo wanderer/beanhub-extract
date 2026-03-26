@@ -4,6 +4,7 @@ import typing
 
 from .base import ExtractorBase
 from .chase import ChaseCreditCardExtractor
+from .chase_brokerage import ChaseBrokerageExtractor
 from .citi import CitiCreditCardExtractor
 from .csv import CSVExtractor
 from .fidelity import FidelityExtractor
@@ -14,6 +15,7 @@ from .wealthsimple import WealthsimpleExtractor
 ALL_EXTRACTORS: dict[str, typing.Type[ExtractorBase]] = {
     MercuryExtractor.EXTRACTOR_NAME: MercuryExtractor,
     ChaseCreditCardExtractor.EXTRACTOR_NAME: ChaseCreditCardExtractor,
+    ChaseBrokerageExtractor.EXTRACTOR_NAME: ChaseBrokerageExtractor,
     PlaidExtractor.EXTRACTOR_NAME: PlaidExtractor,
     WealthsimpleExtractor.EXTRACTOR_NAME: WealthsimpleExtractor,
     CSVExtractor.EXTRACTOR_NAME: CSVExtractor,
