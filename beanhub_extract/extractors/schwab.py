@@ -62,16 +62,18 @@ class SchwabExtractor(ExtractorBase):
         """Detect if this is a Schwab brokerage CSV file."""
         # Reset file position
         self.input_file.seek(0)
-        with as_text(self.input_file, encoding=self.DEFAULT_ENCODING) as text_file:
-            reader = csv.reader(text_file)
-            try:
+        try:
+            with as_text(self.input_file, encoding=self.DEFAULT_ENCODING) as text_file:
+                reader = csv.reader(text_file)
                 header = next(reader)
                 # Check for Schwab-specific columns
                 expected_cols = {"Date", "Action", "Symbol", "Description", "Quantity", "Price", "Amount"}
                 header_set = {col.strip().strip('"') for col in header}
                 return expected_cols.issubset(header_set)
-            except (StopIteration, csv.Error):
-                return False
+        except (StopIteration, csv.Error, UnicodeDecodeError):
+            return False
+        except Exception:
+            return False
 
     def fingerprint(self) -> Fingerprint | None:
         """Generate fingerprint for deduplication."""
