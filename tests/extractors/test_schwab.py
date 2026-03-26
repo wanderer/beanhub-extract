@@ -63,7 +63,7 @@ class TestSchwabExtractor:
             assert buy_txn.amount == Decimal("-1500.00")
             assert buy_txn.extra.get("symbol") == "AAPL"
             assert buy_txn.extra.get("quantity") == "10"
-            assert buy_txn.extra.get("price") == "$150.00"
+            assert buy_txn.extra.get("price") == "150.00"
 
     def test_extract_sell(self, schwab_csv: Path) -> None:
         """Test extraction of sell transaction."""
@@ -75,7 +75,7 @@ class TestSchwabExtractor:
             assert sell_txn.date.day == 5
             assert sell_txn.amount == Decimal("799.50")
             assert sell_txn.extra.get("quantity") == "5"
-            assert sell_txn.extra.get("price") == "$160.00"
+            assert sell_txn.extra.get("price") == "160.00"
             assert sell_txn.extra.get("fees_comm") == "0.50"
 
     def test_extract_credit_interest(self, schwab_csv: Path) -> None:

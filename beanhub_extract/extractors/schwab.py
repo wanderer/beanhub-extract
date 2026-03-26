@@ -134,7 +134,7 @@ class SchwabExtractor(ExtractorBase):
 
                 # Parse quantity and price for trades
                 quantity = row.get("Quantity", "").strip()
-                price = row.get("Price", "").strip()
+                price = row.get("Price", "").strip().replace("$", "")  # Remove $ sign
                 fees_comm = row.get("Fees & Comm", "").strip()
 
                 # Parse fees
