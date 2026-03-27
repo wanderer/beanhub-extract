@@ -1,252 +1,203 @@
-import contextlib
 import csv
 import datetime
 import decimal
 import hashlib
-import re
 import typing
 
-from ..data_types import Fingerprint, Transaction
+from ..data_types import Fingerprint
+from ..data_types import Transaction
 from ..text import as_text
 from .base import ExtractorBase
 
 DEFAULT_ENCODING = "utf-8-sig"
 
+# Canonical column order for Chase Brokerage CSV exports.
+ALL_FIELDS = [
+    "Trade Date",
+    "Post Date",
+    "Settlement Date",
+    "Account Name",
+    "Account Number",
+    "Account Type",
+    "Type",
+    "Description",
+    "Cusip",
+    "Ticker",
+    "Security Type",
+    "Local Currency",
+    "Price USD",
+    "Price Local",
+    "Quantity",
+    "G/L Short USD",
+    "G/L Short Local",
+    "G/L Long USDs",
+    "G/L Long Local",
+    "Amount USD",
+    "Amount Local",
+    "Income USD",
+    "Income Local",
+    "Balance",
+    "Commissions USD",
+    "Commissions Local",
+    "Tran Code",
+    "Tran Code Description",
+    "Broker",
+    "Check Number",
+    "Tax Withheld",
+]
+ALL_FIELDS_SET = frozenset(ALL_FIELDS)
+
 
 def parse_date(date_str: str) -> datetime.date:
-    """Parse date in MM/DD/YYYY format."""
-    if not date_str:
-        raise ValueError("Empty date string")
-    parts = date_str.split("/")
-    return datetime.date(int(parts[-1]), int(parts[0]), int(parts[1]))
+    """Parse date in M/D/YYYY or MM/DD/YYYY format."""
+    parts = date_str.strip().split("/")
+    return datetime.date(int(parts[2]), int(parts[0]), int(parts[1]))
 
 
-def parse_to_decimal(number_str: str) -> decimal.Decimal:
-    """Parse string to Decimal, returning 0 for empty/invalid strings."""
-    if not number_str or number_str.strip() == "":
-        return decimal.Decimal("0.0")
+def parse_decimal(value: str) -> decimal.Decimal | None:
+    """Parse a plain numeric string to Decimal, returning None for blanks."""
+    cleaned = value.replace(",", "").strip()
+    if not cleaned:
+        return None
     try:
-        return decimal.Decimal(number_str)
-    except (ValueError, decimal.InvalidOperation):
-        return decimal.Decimal("0.0")
-
-
-def skip_leading_empty_lines(input_file: typing.TextIO) -> None:
-    """Skip leading empty lines and BOM characters.
-
-    Chase Brokerage CSV files start with a BOM and quoted headers like:
-    "Trade Date","Post Date",...
-    """
-    while True:
-        line = input_file.readline()
-        if not line:
-            break
-        stripped = line.lstrip("\ufeff").strip()  # Remove BOM
-        if stripped:
-            # Found a non-empty line (could be header starting with quote or letter)
-            # Rewind to the start of this line
-            input_file.seek(input_file.tell() - len(line))
-            break
-
-
-@contextlib.contextmanager
-def read_csv(input_file: typing.TextIO | typing.BinaryIO):
-    """Context manager to read Chase Brokerage CSV with proper handling."""
-    with as_text(input_file, encoding=DEFAULT_ENCODING) as text_file:
-        skip_leading_empty_lines(text_file)
-        reader = csv.DictReader(
-            text_file,
-            restkey=None,
-            restval=None,
-            skipinitialspace=True,
-            dialect="excel",
-        )
-        yield reader
+        return decimal.Decimal(cleaned)
+    except decimal.InvalidOperation:
+        return None
 
 
 def is_valid_row(row: dict) -> bool:
-    """Check if a row is a valid data row (has a date in Trade Date)."""
-    date = row.get("Trade Date", "")
-    if not date:
+    """A row is valid if Trade Date is a parseable date."""
+    raw = row.get("Trade Date", "").strip()
+    if not raw:
         return False
-    if re.match(r"^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$", date):
-        try:
-            parse_date(date)
-            return True
-        except ValueError:
-            pass
-    return False
+    try:
+        parse_date(raw)
+        return True
+    except (ValueError, IndexError):
+        return False
+
+
+def generate_transaction_id(row: dict) -> str:
+    """Stable hash derived from the key fields of a row."""
+    parts = [
+        row.get("Trade Date", ""),
+        row.get("Type", ""),
+        row.get("Description", ""),
+        row.get("Ticker", ""),
+        row.get("Quantity", ""),
+        row.get("Price USD", ""),
+        row.get("Amount USD", ""),
+    ]
+    return hashlib.sha256("|".join(parts).encode()).hexdigest()[:32]
 
 
 class ChaseBrokerageExtractor(ExtractorBase):
-    """Extractor for Chase Brokerage CSV exports."""
+    """Extractor for Chase Brokerage CSV exports.
+
+    The file starts with a BOM (``\\ufeff``) and has 31 columns.
+    Dates are in descending order (most recent first).
+    """
 
     EXTRACTOR_NAME = "chase_brokerage"
     DEFAULT_ENCODING = DEFAULT_ENCODING
     DEFAULT_IMPORT_ID = "{{ transaction_id }}"
 
-    # All expected CSV columns for Chase Brokerage export
-    ALL_FIELDS = [
-        "Trade Date",
-        "Post Date",
-        "Settlement Date",
-        "Account Name",
-        "Account Number",
-        "Account Type",
-        "Type",
-        "Description",
-        "Cusip",
-        "Ticker",
-        "Security Type",
-        "Local Currency",
-        "Price USD",
-        "Price Local",
-        "Quantity",
-        "G/L Short USD",
-        "G/L Short Local",
-        "G/L Long USDs",
-        "G/L Long Local",
-        "Amount USD",
-        "Amount Local",
-        "Income USD",
-        "Income Local",
-        "Balance",
-        "Commissions USD",
-        "Commissions Local",
-        "Tran Code",
-        "Tran Code Description",
-        "Broker",
-        "Check Number",
-        "Tax Withheld",
-    ]
-
     def detect(self) -> bool:
-        """Detect if this is a Chase Brokerage CSV file."""
+        self.input_file.seek(0)
         try:
-            with read_csv(self.input_file) as reader:
-                return reader.fieldnames == self.ALL_FIELDS
+            with as_text(self.input_file, encoding=self.DEFAULT_ENCODING) as text_file:
+                reader = csv.DictReader(text_file)
+                if reader.fieldnames is None:
+                    return False
+                return ALL_FIELDS_SET == frozenset(reader.fieldnames)
         except Exception:
-            pass
-        return False
+            return False
 
     def fingerprint(self) -> Fingerprint | None:
-        """Generate fingerprint from the last row (most recent transaction)."""
-        with read_csv(self.input_file) as reader:
-            valid_rows = list(filter(is_valid_row, reader))
-            if not valid_rows:
+        self.input_file.seek(0)
+        with as_text(self.input_file, encoding=self.DEFAULT_ENCODING) as text_file:
+            reader = csv.DictReader(text_file)
+            rows = [r for r in reader if is_valid_row(r)]
+            if not rows:
                 return None
-
-            last_row = valid_rows[-1]
-            hash_obj = hashlib.sha256()
-            for field in self.ALL_FIELDS:
-                value = last_row.get(field, "")
-                hash_obj.update(value.encode("utf8"))
-
-            try:
-                date_value = parse_date(last_row.get("Trade Date", "01/01/1970"))
-            except ValueError:
-                date_value = datetime.date(1970, 1, 1)
-
+            # Use last row (oldest date) for a stable fingerprint since the
+            # file is in descending date order.
+            last = rows[-1]
+            h = hashlib.sha256()
+            for field in ALL_FIELDS:
+                h.update(last.get(field, "").encode())
             return Fingerprint(
-                starting_date=date_value,
-                first_row_hash=hash_obj.hexdigest(),
+                starting_date=parse_date(last["Trade Date"]),
+                first_row_hash=h.hexdigest(),
             )
 
     def __call__(self) -> typing.Generator[Transaction, None, None]:
-        """Extract transactions from Chase Brokerage CSV."""
-        filename = None
-        if hasattr(self.input_file, "name"):
-            filename = self.input_file.name
-
-        # Count rows first
-        row_count = 0
         self.input_file.seek(0)
-        with read_csv(self.input_file) as reader:
-            try:
-                for _ in filter(is_valid_row, reader):
-                    row_count += 1
-            except Exception:
-                pass
+        filename = getattr(self.input_file, "name", None)
+        if filename is not None and not isinstance(filename, str):
+            filename = str(filename)
 
-        self.input_file.seek(0)
-        with read_csv(self.input_file) as reader:
-            valid_rows = list(filter(is_valid_row, reader))
-            for i, row in enumerate(valid_rows):
-                trade_date = row.get("Trade Date", "")
-                post_date = row.get("Post Date", "")
+        with as_text(self.input_file, encoding=self.DEFAULT_ENCODING) as text_file:
+            reader = csv.DictReader(text_file)
+            rows = [r for r in reader if is_valid_row(r)]
+            total = len(rows)
 
-                # Parse dates
+            for i, row in enumerate(rows):
+                trade_date = parse_date(row["Trade Date"])
+
+                post_date_raw = row.get("Post Date", "").strip()
                 try:
-                    date = parse_date(trade_date) if trade_date else datetime.date(1970, 1, 1)
-                except ValueError:
-                    date = datetime.date(1970, 1, 1)
+                    post_date = parse_date(post_date_raw) if post_date_raw else trade_date
+                except (ValueError, IndexError):
+                    post_date = trade_date
 
-                try:
-                    post_date_parsed = parse_date(post_date) if post_date else date
-                except ValueError:
-                    post_date_parsed = date
+                txn_type = row.get("Type", "").strip()
+                description = row.get("Description", "").strip()
+                ticker = row.get("Ticker", "").strip()
+                security_type = row.get("Security Type", "").strip()
 
-                # Extract standard fields
-                txn_type = row.get("Type", "")
-                description = row.get("Description", "")
-                ticker = row.get("Ticker", "")
-                security_type = row.get("Security Type", "")
+                amount = parse_decimal(row.get("Amount USD", ""))
+                income = parse_decimal(row.get("Income USD", ""))
+                commissions = parse_decimal(row.get("Commissions USD", ""))
+                price = row.get("Price USD", "").strip()
+                quantity = row.get("Quantity", "").replace(",", "").strip()
 
-                # Amount (Amount USD is the main amount field)
-                amount = parse_to_decimal(row.get("Amount USD", "0.0"))
-
-                # Income (for dividends)
-                income = parse_to_decimal(row.get("Income USD", "0.0"))
-
-                # Commissions
-                commissions = parse_to_decimal(row.get("Commissions USD", "0.0"))
-
-                # Price and quantity for securities
-                price = row.get("Price USD", "")
-                quantity = row.get("Quantity", "")
-
-                # Settlement date
-                settlement_date = row.get("Settlement Date", "")
-
-                # Account number (last 4 digits)
-                account_number = row.get("Account Number", "")
+                account_number = row.get("Account Number", "").strip()
                 last_four = account_number[-4:] if len(account_number) >= 4 else account_number
-
-                # Build extra dict with all additional fields
-                extra = {
-                    "ticker": ticker,
-                    "security_type": security_type,
-                    "quantity": quantity,
-                    "price": price,
-                    "income": str(income) if income != 0 else "",
-                    "commissions": str(commissions) if commissions != 0 else "",
-                    "settlement_date": settlement_date,
-                    "cusip": row.get("Cusip", ""),
-                    "local_currency": row.get("Local Currency", ""),
-                    "price_local": row.get("Price Local", ""),
-                    "amount_local": row.get("Amount Local", ""),
-                    "balance": row.get("Balance", ""),
-                    "tran_code": row.get("Tran Code", ""),
-                    "tran_code_description": row.get("Tran Code Description", ""),
-                    "broker": row.get("Broker", ""),
-                    "check_number": row.get("Check Number", ""),
-                    "tax_withheld": row.get("Tax Withheld", ""),
-                    "account_name": row.get("Account Name", ""),
-                    "account_type": row.get("Account Type", ""),
-                }
 
                 yield Transaction(
                     extractor=self.EXTRACTOR_NAME,
                     file=filename,
                     lineno=i + 1,
-                    reversed_lineno=i - row_count,
-                    date=date,
-                    post_date=post_date_parsed,
+                    reversed_lineno=i - total,
+                    transaction_id=generate_transaction_id(row),
+                    date=trade_date,
+                    post_date=post_date,
                     desc=description,
                     bank_desc=description,
                     amount=amount,
                     currency="USD",
                     type=txn_type,
                     last_four_digits=last_four,
-                    extra=extra,
+                    extra={
+                        "ticker": ticker,
+                        "security_type": security_type,
+                        "quantity": quantity,
+                        "price": price,
+                        "income": str(income) if income else "",
+                        "commissions": str(commissions) if commissions else "",
+                        "settlement_date": row.get("Settlement Date", "").strip(),
+                        "cusip": row.get("Cusip", "").strip(),
+                        "local_currency": row.get("Local Currency", "").strip(),
+                        "price_local": row.get("Price Local", "").strip(),
+                        "amount_local": row.get("Amount Local", "").strip(),
+                        "balance": row.get("Balance", "").strip(),
+                        "tran_code": row.get("Tran Code", "").strip(),
+                        "tran_code_description": row.get("Tran Code Description", "").strip(),
+                        "broker": row.get("Broker", "").strip(),
+                        "check_number": row.get("Check Number", "").strip(),
+                        "tax_withheld": row.get("Tax Withheld", "").strip(),
+                        "account_name": row.get("Account Name", "").strip(),
+                        "account_type": row.get("Account Type", "").strip(),
+                    },
                 )
