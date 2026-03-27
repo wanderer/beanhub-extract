@@ -126,17 +126,6 @@ class TestSchwabExtractor:
             transactions = list(extractor())
             assert len(transactions) == 10
 
-    def test_transaction_id_is_hash(self, schwab_csv: Path) -> None:
-        """Test that transaction_id is a hash, not file:lineno."""
-        with open(schwab_csv, "rb") as f:
-            extractor = SchwabExtractor(f)
-            transactions = list(extractor())
-            for txn in transactions:
-                # Should be a 32-char hex string
-                assert len(txn.transaction_id) == 32
-                # Should be valid hex
-                int(txn.transaction_id, 16)
-
     def test_currency(self, schwab_csv: Path) -> None:
         """Test that currency is USD."""
         with open(schwab_csv, "rb") as f:

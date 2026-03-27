@@ -31,26 +31,9 @@ def parse_to_decimal(number_str: str) -> decimal.Decimal:
         return decimal.Decimal("0.0")
 
 
-def generate_transaction_id(row: dict) -> str:
-    """Generate a hash-based transaction ID from key row values."""
-    # Key fields to include in the hash for uniqueness
-    key_fields = [
-        row.get("Trade Date", ""),
-        row.get("Post Date", ""),
-        row.get("Type", ""),
-        row.get("Description", ""),
-        row.get("Amount USD", ""),
-        row.get("Quantity", ""),
-        row.get("Ticker", ""),
-        row.get("Account Number", ""),
-    ]
-    combined = "|".join(key_fields)
-    return hashlib.sha256(combined.encode("utf-8")).hexdigest()[:32]
-
-
 def skip_leading_empty_lines(input_file: typing.TextIO) -> None:
     """Skip leading empty lines and BOM characters.
-    
+
     Chase Brokerage CSV files start with a BOM and quoted headers like:
     "Trade Date","Post Date",...
     """
@@ -252,15 +235,11 @@ class ChaseBrokerageExtractor(ExtractorBase):
                     "account_type": row.get("Account Type", ""),
                 }
 
-                # Generate hash-based transaction ID
-                transaction_id = generate_transaction_id(row)
-
                 yield Transaction(
                     extractor=self.EXTRACTOR_NAME,
                     file=filename,
                     lineno=i + 1,
                     reversed_lineno=i - row_count,
-                    transaction_id=transaction_id,
                     date=date,
                     post_date=post_date_parsed,
                     desc=description,
