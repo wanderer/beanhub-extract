@@ -173,7 +173,7 @@ class ChaseBrokerageExtractor(ExtractorBase):
                     transaction_id=generate_transaction_id(row),
                     date=trade_date,
                     post_date=post_date,
-                    desc=description,
+                    desc=f"{txn_type} - {description}" if description else txn_type,
                     bank_desc=description,
                     amount=amount,
                     currency="USD",

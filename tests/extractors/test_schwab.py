@@ -76,8 +76,8 @@ class TestSchwabExtractor:
             assert txn.date.day == 2
             assert txn.amount == Decimal("12.50")
             assert txn.extra["symbol"] == "AAPL"
-            # desc should be just the description, NOT "Qualified Dividend - APPLE INC"
-            assert txn.desc == "APPLE INC"
+            assert txn.desc == "Qualified Dividend - APPLE INC"
+            assert txn.bank_desc == "APPLE INC"
 
     # -- Buy --
 
@@ -89,7 +89,7 @@ class TestSchwabExtractor:
             assert buy.extra["symbol"] == "AAPL"
             assert buy.extra["quantity"] == "10"
             assert buy.extra["price"] == "150.00"
-            assert buy.desc == "APPLE INC"
+            assert buy.desc == "Buy - APPLE INC"
 
     # -- Sell --
 

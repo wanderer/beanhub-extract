@@ -134,7 +134,7 @@ class SchwabExtractor(ExtractorBase):
                     reversed_lineno=i - total,
                     transaction_id=generate_transaction_id(row),
                     date=date,
-                    desc=description,
+                    desc=f"{action} - {description}" if description else action,
                     bank_desc=description,
                     amount=amount,
                     currency="USD",
