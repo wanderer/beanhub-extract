@@ -1,0 +1,125 @@
+{
+  "BrokerageTransactions": [
+    {
+      "Date": "01/02/2026",
+      "Action": "Qualified Dividend",
+      "Symbol": "AAPL",
+      "Description": "APPLE INC",
+      "Quantity": "",
+      "Price": "",
+      "Fees & Comm": "",
+      "Amount": "$12.50",
+      "AcctgRuleCd": "2"
+    },
+    {
+      "Date": "01/03/2026",
+      "Action": "Buy",
+      "Symbol": "AAPL",
+      "Description": "APPLE INC",
+      "Quantity": "10",
+      "Price": "$150.00",
+      "Fees & Comm": "$0.00",
+      "Amount": "-$1,500.00",
+      "AcctgRuleCd": "1"
+    },
+    {
+      "Date": "01/05/2026",
+      "Action": "Sell",
+      "Symbol": "AAPL",
+      "Description": "APPLE INC",
+      "Quantity": "5",
+      "Price": "$160.00",
+      "Fees & Comm": "$0.50",
+      "Amount": "$799.50",
+      "AcctgRuleCd": "1"
+    },
+    {
+      "Date": "01/06/2026",
+      "Action": "Credit Interest",
+      "Symbol": "",
+      "Description": "SCHWAB1 INT 01/01-01/05",
+      "Quantity": "",
+      "Price": "",
+      "Fees & Comm": "",
+      "Amount": "$0.25",
+      "AcctgRuleCd": "1"
+    },
+    {
+      "Date": "01/07/2026",
+      "Action": "Advisor Fee",
+      "Symbol": "",
+      "Description": "MGMTFEE TO ADVISOR",
+      "Quantity": "",
+      "Price": "",
+      "Fees & Comm": "",
+      "Amount": "-$45.00",
+      "AcctgRuleCd": "1"
+    },
+    {
+      "Date": "01/08/2026 as of 01/07/2026",
+      "Action": "Stock Split",
+      "Symbol": "TEST",
+      "Description": "TEST CORP",
+      "Quantity": "100",
+      "Price": "$10.00",
+      "Fees & Comm": "",
+      "Amount": "",
+      "AcctgRuleCd": "2"
+    },
+    {
+      "Date": "01/10/2026",
+      "Action": "Non-Qualified Div",
+      "Symbol": "MSFT",
+      "Description": "MICROSOFT CORP",
+      "Quantity": "",
+      "Price": "",
+      "Fees & Comm": "",
+      "Amount": "$25.00",
+      "AcctgRuleCd": "1"
+    },
+    {
+      "Date": "01/15/2026",
+      "Action": "Journal",
+      "Symbol": "XYZ",
+      "Description": "XYZ CORP",
+      "Quantity": "50",
+      "Price": "$20.00",
+      "Fees & Comm": "",
+      "Amount": "",
+      "AcctgRuleCd": "2"
+    },
+    {
+      "Date": "01/15/2026",
+      "Action": "Journal",
+      "Symbol": "XYZ",
+      "Description": "XYZ CORP",
+      "Quantity": "-50",
+      "Price": "$20.00",
+      "Fees & Comm": "",
+      "Amount": "",
+      "AcctgRuleCd": "1"
+    },
+    {
+      "Date": "01/20/2026",
+      "Action": "Sell Short",
+      "Symbol": "GME",
+      "Description": "GAMESTOP CORP",
+      "Quantity": "100",
+      "Price": "$25.00",
+      "Fees & Comm": "$0.00",
+      "Amount": "-$2,500.00",
+      "AcctgRuleCd": "6"
+    },
+    {
+      "Date": "01/22/2026",
+      "Action": "Buy",
+      "Symbol": "GME",
+      "Description": "GAMESTOP CORP",
+      "Quantity": "100",
+      "Price": "$20.00",
+      "Fees & Comm": "$0.00",
+      "Amount": "-$2,000.00",
+      "AcctgRuleCd": "6"
+    }
+  ]
+}
