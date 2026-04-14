@@ -12,6 +12,7 @@ from .mercury import MercuryExtractor
 from .plaid import PlaidExtractor
 from .schwab import SchwabExtractor
 from .schwab_json import SchwabJsonExtractor
+from .revolut import RevolutExtractor
 from .wealthsimple import WealthsimpleExtractor
 
 ALL_EXTRACTORS: dict[str, typing.Type[ExtractorBase]] = {
@@ -25,6 +26,7 @@ ALL_EXTRACTORS: dict[str, typing.Type[ExtractorBase]] = {
     CitiCreditCardExtractor.EXTRACTOR_NAME: CitiCreditCardExtractor,
     SchwabExtractor.EXTRACTOR_NAME: SchwabExtractor,
     SchwabJsonExtractor.EXTRACTOR_NAME: SchwabJsonExtractor,
+    RevolutExtractor.EXTRACTOR_NAME: RevolutExtractor,
 }
 
 

@@ -1,0 +1,10 @@
+Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance
+Deposit,Current,2024-04-20 10:00:00,2024-04-20 10:00:00,Payment from MARTIN BECZE,5000.00,0.00,EUR,COMPLETED,5000.00
+Card Payment,Current,2024-04-19 14:25:50,2024-04-20 11:44:54,eeetwell,-13.00,0.00,EUR,COMPLETED,0.00
+Transfer,Current,2024-04-18 01:00:00,2024-04-18 12:52:23,To Melita Limited,-39.99,0.00,EUR,COMPLETED,13.00
+ATM,Current,2024-04-17 16:30:00,2024-04-17 16:30:01,Cash withdrawal at ATM,-100.00,2.50,EUR,COMPLETED,52.99
+Exchange,Current,2024-04-16 09:00:00,2024-04-16 09:00:01,Exchanged to GBP,-50.00,0.00,EUR,COMPLETED,152.99
+Fee,Current,2024-04-15 01:10:03,2024-04-15 01:10:03,Premium plan fee,-7.99,0.00,EUR,COMPLETED,202.99
+Charge,Current,2024-04-14 22:18:40,2024-04-14 22:18:40,Premium plan fee,0.00,8.99,EUR,COMPLETED,210.98
+Card Refund,Current,2024-04-13 10:00:00,2024-04-13 10:00:01,Refund from Amazon,25.50,0.00,EUR,COMPLETED,219.97
+Card Payment,Current,2024-04-12 11:00:00,2024-04-12 11:00:01,Pending transaction,-10.00,0.00,EUR,REVERTED,194.47
