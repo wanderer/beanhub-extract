@@ -85,12 +85,17 @@ class RevolutExtractor(ExtractorBase):
                     continue
                 completed_date_str = row["Completed Date"]
                 started_date_str = row["Started Date"]
+                txn_type = row.pop("Type")
+                amount = decimal.Decimal(row.pop("Amount"))
+                fee = decimal.Decimal(row["Fee"])
+                if txn_type == "Charge":
+                    amount = -fee
                 kwargs = dict(
                     date=parse_date(started_date_str),
                     timestamp=timezone.localize(parse_datetime(started_date_str)),
-                    type=row.pop("Type"),
+                    type=txn_type,
                     desc=row.pop("Description"),
-                    amount=decimal.Decimal(row.pop("Amount")),
+                    amount=amount,
                     currency=row.pop("Currency"),
                     status=row.pop("State"),
                 )

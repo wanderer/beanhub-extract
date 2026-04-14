@@ -158,7 +158,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     timezone="UTC",
                     type="Charge",
                     desc="Premium plan fee",
-                    amount=decimal.Decimal("0.00"),
+                    amount=decimal.Decimal("-8.99"),
                     currency="EUR",
                     status="COMPLETED",
                     extra={"Fee": "8.99", "Balance": "210.98"},
