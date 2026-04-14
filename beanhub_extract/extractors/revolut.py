@@ -90,11 +90,13 @@ class RevolutExtractor(ExtractorBase):
                 fee = decimal.Decimal(row["Fee"])
                 if txn_type == "Charge":
                     amount = -fee
+                desc = row.pop("Description")
+                desc = f"{txn_type} - {desc}" if desc else txn_type
                 kwargs = dict(
                     date=parse_date(started_date_str),
                     timestamp=timezone.localize(parse_datetime(started_date_str)),
                     type=txn_type,
-                    desc=row.pop("Description"),
+                    desc=desc,
                     amount=amount,
                     currency=row.pop("Currency"),
                     status=row.pop("State"),
