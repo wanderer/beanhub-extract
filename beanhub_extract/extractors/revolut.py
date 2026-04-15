@@ -118,3 +118,20 @@ class RevolutExtractor(ExtractorBase):
                     timezone="UTC",
                     **kwargs,
                 )
+                if fee and fee != decimal.Decimal("0") and txn_type != "Charge":
+                    fee_desc = f"Fee - {desc}" if desc else "Fee"
+                    yield Transaction(
+                        extractor=self.EXTRACTOR_NAME,
+                        file=filename,
+                        lineno=i + 1,
+                        reversed_lineno=i - row_count,
+                        timezone="UTC",
+                        date=kwargs["date"],
+                        timestamp=kwargs["timestamp"],
+                        type="Fee",
+                        desc=fee_desc,
+                        amount=-fee,
+                        currency=kwargs["currency"],
+                        status=kwargs["status"],
+                        post_date=kwargs.get("post_date"),
+                    )
