@@ -87,7 +87,8 @@ class RevolutExtractor(ExtractorBase):
                 started_date_str = row["Started Date"]
                 txn_type = row.pop("Type")
                 amount = decimal.Decimal(row.pop("Amount"))
-                fee = decimal.Decimal(row["Fee"])
+                fee = decimal.Decimal(row.pop("Fee"))
+                row["Fee"] = fee
                 if txn_type == "Charge":
                     amount = -fee
                 desc = row.pop("Description")

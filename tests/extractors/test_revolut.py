@@ -58,7 +58,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("5000.00"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "0.00", "Balance": "5000.00"},
+                    extra={"Fee": decimal.Decimal("0.00"), "Balance": "5000.00"},
                 ),
                 Transaction(
                     extractor="revolut",
@@ -76,7 +76,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("-13.00"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "0.00", "Balance": "0.00"},
+                    extra={"Fee": decimal.Decimal("0.00"), "Balance": "0.00"},
                 ),
                 Transaction(
                     extractor="revolut",
@@ -93,7 +93,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("-39.99"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "0.00", "Balance": "13.00"},
+                    extra={"Fee": decimal.Decimal("0.00"), "Balance": "13.00"},
                 ),
                 Transaction(
                     extractor="revolut",
@@ -110,7 +110,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("-100.00"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "2.50", "Balance": "52.99"},
+                    extra={"Fee": decimal.Decimal("2.50"), "Balance": "52.99"},
                 ),
                 Transaction(
                     extractor="revolut",
@@ -127,7 +127,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("-50.00"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "0.00", "Balance": "152.99"},
+                    extra={"Fee": decimal.Decimal("0.00"), "Balance": "152.99"},
                 ),
                 Transaction(
                     extractor="revolut",
@@ -144,7 +144,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("-7.99"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "0.00", "Balance": "202.99"},
+                    extra={"Fee": decimal.Decimal("0.00"), "Balance": "202.99"},
                 ),
                 Transaction(
                     extractor="revolut",
@@ -161,7 +161,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("-8.99"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "8.99", "Balance": "210.98"},
+                    extra={"Fee": decimal.Decimal("8.99"), "Balance": "210.98"},
                 ),
                 Transaction(
                     extractor="revolut",
@@ -178,7 +178,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("25.50"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": "0.00", "Balance": "219.97"},
+                    extra={"Fee": decimal.Decimal("0.00"), "Balance": "219.97"},
                 ),
             ],
         ),
