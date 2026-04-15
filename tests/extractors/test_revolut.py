@@ -161,7 +161,7 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     amount=decimal.Decimal("-8.99"),
                     currency="EUR",
                     status="COMPLETED",
-                    extra={"Fee": decimal.Decimal("8.99"), "Balance": "210.98"},
+                    extra={"Fee": decimal.Decimal("0"), "Balance": "210.98"},
                 ),
                 Transaction(
                     extractor="revolut",

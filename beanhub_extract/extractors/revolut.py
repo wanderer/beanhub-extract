@@ -88,9 +88,11 @@ class RevolutExtractor(ExtractorBase):
                 txn_type = row.pop("Type")
                 amount = decimal.Decimal(row.pop("Amount"))
                 fee = decimal.Decimal(row.pop("Fee"))
-                row["Fee"] = fee
                 if txn_type == "Charge":
                     amount = -fee
+                    row["Fee"] = decimal.Decimal("0")
+                else:
+                    row["Fee"] = fee
                 desc = row.pop("Description")
                 desc = f"{txn_type} - {desc}" if desc else txn_type
                 kwargs = dict(
