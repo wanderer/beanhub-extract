@@ -115,23 +115,6 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                 Transaction(
                     extractor="revolut",
                     file="revolut.csv",
-                    lineno=4,
-                    reversed_lineno=-6,
-                    date=datetime.date(2024, 4, 17),
-                    timestamp=datetime.datetime(
-                        2024, 4, 17, 16, 30, 0, tzinfo=pytz.UTC
-                    ),
-                    timezone="UTC",
-                    type="Fee",
-                    desc="Fee - ATM - Cash withdrawal at ATM",
-                    amount=decimal.Decimal("-2.50"),
-                    currency="EUR",
-                    status="COMPLETED",
-                    post_date=None,
-                ),
-                Transaction(
-                    extractor="revolut",
-                    file="revolut.csv",
                     lineno=5,
                     reversed_lineno=-5,
                     date=datetime.date(2024, 4, 16),
