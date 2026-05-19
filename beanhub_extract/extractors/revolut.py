@@ -94,9 +94,10 @@ class RevolutExtractor(ExtractorBase):
                 if txn_type == "Charge":
                     txn_type = "Fee"
                 row["Fee"] = fee
-                desc = row.pop("Description")
-                desc = f"{txn_type} - {desc}" if desc else txn_type
+                payee = row.pop("Description")
+                desc = txn_type
                 kwargs = dict(
+                    payee=payee,
                     date=parse_date(started_date_str),
                     timestamp=timezone.localize(parse_datetime(started_date_str)),
                     type=txn_type,
