@@ -13,12 +13,7 @@ from .base import ExtractorBase
 
 
 def parse_datetime(timestamp_str: str) -> datetime.datetime:
-    date_part, time_part = timestamp_str.split(" ")
-    year, month, day = date_part.split("-")
-    hour, minute, second = time_part.split(":")
-    return datetime.datetime(
-        int(year), int(month), int(day), int(hour), int(minute), int(second)
-    )
+    return datetime.datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
 
 
 def parse_date(date_str: str) -> datetime.date:
@@ -73,14 +68,8 @@ class RevolutExtractor(ExtractorBase):
         if hasattr(self.input_file, "name"):
             filename = self.input_file.name
         with as_text(self.input_file) as text_file:
-            row_count_reader = csv.DictReader(text_file)
-            row_count = 0
-            for _ in row_count_reader:
-                row_count += 1
-            text_file.seek(0)
-            reader = csv.DictReader(text_file)
-            timezone = pytz.UTC
-            for i, row in enumerate(reader):
+            rows = list(csv.DictReader(text_file))
+            for i, row in enumerate(rows):
                 if row["State"] != "COMPLETED":
                     continue
                 completed_date_str = row["Completed Date"]
@@ -95,30 +84,29 @@ class RevolutExtractor(ExtractorBase):
                     txn_type = "Fee"
                 row["Fee"] = fee
                 payee = row.pop("Description")
-                desc = txn_type
-                kwargs = dict(
-                    payee=payee,
-                    date=parse_date(started_date_str),
-                    timestamp=timezone.localize(parse_datetime(started_date_str)),
-                    type=txn_type,
-                    desc=desc,
-                    amount=amount,
-                    currency=row.pop("Currency"),
-                    status=row.pop("State"),
-                )
+                date = parse_date(started_date_str)
                 row.pop("Product")
                 row.pop("Started Date")
                 row.pop("Completed Date")
+                post_date = None
                 if completed_date_str:
                     post_date = parse_date(completed_date_str)
-                    if post_date != kwargs["date"]:
-                        kwargs["post_date"] = post_date
-                kwargs["extra"] = row
+                    if post_date == date:
+                        post_date = None
                 yield Transaction(
                     extractor=self.EXTRACTOR_NAME,
                     file=filename,
                     lineno=i + 1,
-                    reversed_lineno=i - row_count,
+                    reversed_lineno=i - len(rows),
                     timezone="UTC",
-                    **kwargs,
+                    payee=payee,
+                    date=date,
+                    post_date=post_date,
+                    timestamp=pytz.UTC.localize(parse_datetime(started_date_str)),
+                    type=txn_type,
+                    desc=txn_type,
+                    amount=amount,
+                    currency=row.pop("Currency"),
+                    status=row.pop("State"),
+                    extra=row,
                 )
