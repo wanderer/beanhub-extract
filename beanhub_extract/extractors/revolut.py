@@ -85,14 +85,15 @@ class RevolutExtractor(ExtractorBase):
                     continue
                 completed_date_str = row["Completed Date"]
                 started_date_str = row["Started Date"]
+                fee = decimal.Decimal(row.pop("Fee"))
                 txn_type = row.pop("Type")
                 amount = decimal.Decimal(row.pop("Amount"))
-                fee = decimal.Decimal(row.pop("Fee"))
+                if txn_type == "Fee":
+                    fee = -amount
+                    amount = decimal.Decimal("0")
                 if txn_type == "Charge":
-                    amount = -fee
-                    row["Fee"] = decimal.Decimal("0")
-                else:
-                    row["Fee"] = fee
+                    txn_type = "Fee"
+                row["Fee"] = fee
                 desc = row.pop("Description")
                 desc = f"{txn_type} - {desc}" if desc else txn_type
                 kwargs = dict(
@@ -111,8 +112,7 @@ class RevolutExtractor(ExtractorBase):
                     post_date = parse_date(completed_date_str)
                     if post_date != kwargs["date"]:
                         kwargs["post_date"] = post_date
-                if row:
-                    kwargs["extra"] = row
+                kwargs["extra"] = row
                 yield Transaction(
                     extractor=self.EXTRACTOR_NAME,
                     file=filename,

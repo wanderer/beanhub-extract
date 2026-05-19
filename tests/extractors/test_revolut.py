@@ -129,40 +129,40 @@ def test_parse_datetime(timestamp_str: str, expected: datetime.datetime):
                     status="COMPLETED",
                     extra={"Fee": decimal.Decimal("0.00"), "Balance": "152.99"},
                 ),
-                Transaction(
-                    extractor="revolut",
-                    file="revolut.csv",
-                    lineno=6,
-                    reversed_lineno=-4,
-                    date=datetime.date(2024, 4, 15),
-                    timestamp=datetime.datetime(
-                        2024, 4, 15, 1, 10, 3, tzinfo=pytz.UTC
+                    Transaction(
+                        extractor="revolut",
+                        file="revolut.csv",
+                        lineno=6,
+                        reversed_lineno=-4,
+                        date=datetime.date(2024, 4, 15),
+                        timestamp=datetime.datetime(
+                            2024, 4, 15, 1, 10, 3, tzinfo=pytz.UTC
+                        ),
+                        timezone="UTC",
+                        type="Fee",
+                        desc="Fee - Premium plan fee",
+                        amount=decimal.Decimal("0"),
+                        currency="EUR",
+                        status="COMPLETED",
+                        extra={"Fee": decimal.Decimal("7.99"), "Balance": "202.99"},
                     ),
-                    timezone="UTC",
-                    type="Fee",
-                    desc="Fee - Premium plan fee",
-                    amount=decimal.Decimal("-7.99"),
-                    currency="EUR",
-                    status="COMPLETED",
-                    extra={"Fee": decimal.Decimal("0.00"), "Balance": "202.99"},
-                ),
-                Transaction(
-                    extractor="revolut",
-                    file="revolut.csv",
-                    lineno=7,
-                    reversed_lineno=-3,
-                    date=datetime.date(2024, 4, 14),
-                    timestamp=datetime.datetime(
-                        2024, 4, 14, 22, 18, 40, tzinfo=pytz.UTC
+                    Transaction(
+                        extractor="revolut",
+                        file="revolut.csv",
+                        lineno=7,
+                        reversed_lineno=-3,
+                        date=datetime.date(2024, 4, 14),
+                        timestamp=datetime.datetime(
+                            2024, 4, 14, 22, 18, 40, tzinfo=pytz.UTC
+                        ),
+                        timezone="UTC",
+                        type="Fee",
+                        desc="Fee - Premium plan fee",
+                        amount=decimal.Decimal("0.00"),
+                        currency="EUR",
+                        status="COMPLETED",
+                        extra={"Fee": decimal.Decimal("8.99"), "Balance": "210.98"},
                     ),
-                    timezone="UTC",
-                    type="Charge",
-                    desc="Charge - Premium plan fee",
-                    amount=decimal.Decimal("-8.99"),
-                    currency="EUR",
-                    status="COMPLETED",
-                    extra={"Fee": decimal.Decimal("0"), "Balance": "210.98"},
-                ),
                 Transaction(
                     extractor="revolut",
                     file="revolut.csv",
